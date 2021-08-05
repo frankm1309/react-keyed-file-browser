@@ -158,7 +158,7 @@ class RawFileBrowser extends React.Component {
     nameFilter: '',
     searchResultsShown: SEARCH_RESULTS_PER_PAGE,
 
-    previewFile: null,
+    previewFileKey: null,
 
     addFolder: null,
   }
@@ -251,6 +251,7 @@ class RawFileBrowser extends React.Component {
       activeAction: null,
       actionTargets: [],
       selection: [newKey],
+      previewFileKey: this.state.previewFileKey === oldKey ? newKey : this.state.previewFileKey
     }, () => {
       this.props.onRenameFile(oldKey, newKey)
     })
@@ -367,10 +368,10 @@ class RawFileBrowser extends React.Component {
   }
 
   preview = (file) => {
-    if (this.state.previewFile && this.state.previewFile.key !== file.key) this.closeDetail()
+    if (this.state.previewFileKey && this.state.previewFileKey !== file.key) this.closeDetail()
 
     this.setState({
-      previewFile: file,
+      previewFileKey: file.key,
     }, () => {
       this.props.onPreviewOpen(file)
     })
@@ -378,7 +379,7 @@ class RawFileBrowser extends React.Component {
 
   closeDetail = () => {
     this.setState({
-      previewFile: null,
+      previewFileKey: null,
     }, () => {
       this.props.onPreviewClose(this.state.previewFile)
     })
@@ -828,6 +829,7 @@ class RawFileBrowser extends React.Component {
     }
 
     const ConfirmMultipleDeletionRenderer = this.props.confirmMultipleDeletionRenderer
+    const file = this.props.files.find(file => file.key === this.state.previewFileKey)
 
     return (
       <div className="rendered-react-keyed-file-browser">
@@ -842,9 +844,9 @@ class RawFileBrowser extends React.Component {
             {renderedFiles}
           </div>
         </div>
-        {this.state.previewFile !== null && (
+        {file && (
           <this.props.detailRenderer
-            file={this.state.previewFile}
+            file={file}
             close={this.closeDetail}
             {...this.props.detailRendererProps}
           />
